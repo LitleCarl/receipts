@@ -63,7 +63,7 @@ module Receipts
       def charge_details
         borders = line_items.length - 2
 
-        table(line_items, cell_style: { border_color: 'cccccc' }) do
+        table(line_items, cell_style: { border_color: 'cccccc', size: 7}) do
           cells.padding = 12
           cells.borders = []
           row(0..borders).borders = [:bottom]
