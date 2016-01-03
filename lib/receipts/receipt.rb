@@ -13,9 +13,12 @@ module Receipts
       @message        = attributes.fetch(:message) { default_message }
       @logo           = attributes.fetch(:logo)
       @receiver_info  = attributes.fetch(:receiver_info)
+      @width = 220
+      @padding = 10
 
+      @content_width = @width - @padding * 2
       @height = 300 + @line_items.count * 40
-      super(margin: 0, page_size: [280, @height])
+      super(margin: 0, page_size: [@width, @height])
 
       setup_fonts if custom_font.any?
       generate
@@ -33,8 +36,8 @@ module Receipts
       end
 
       def generate
-        bounding_box [0, @height], width: 280, height: @height do
-          bounding_box [10, @height], width: 260, height: @height do
+        bounding_box [0, @height], width: @width, height: @height do
+          bounding_box [@padding, @height], width: @content_width, height: @height do
             header
             charge_details
             footer
@@ -43,24 +46,21 @@ module Receipts
       end
 
       def header
-        move_down 60
-
+        move_down 25
         if logo.present?
-          image open(logo), height: 32
+          bounding_box([@content_width * 0.5 -25, @height -25], width:50, height: 50) do
+            image open(logo), height: 50
+          end
         else
-          move_down 32
+          move_down 25
         end
 
         move_down 8
         text "<color rgb='a6a6a6'>订单编号: ##{id}</color>", inline_format: true
 
-        move_down 30
-        text message, inline_format: true, size: 12.5, leading: 4
       end
 
       def charge_details
-        move_down 30
-
         borders = line_items.length - 2
 
         table(line_items, cell_style: { border_color: 'cccccc' }) do
@@ -74,8 +74,10 @@ module Receipts
         move_down 45
         text receiver_info.fetch(:name), inline_format: true
         text receiver_info.fetch(:delivery_time), inline_format: true
-        text "<color rgb='888888'>#{receiver_info.fetch(:address) || ''}</color>", inline_format: true
-        text "<color rgb='888888'>#{receiver_info.fetch(:phone) || ''}</color>", inline_format: true
+        text "<color rgb='888888'>#{receiver_info.fetch(:address) || ''}</color>", inline_format: true, size: 16
+        text "<color rgb='888888'>#{receiver_info.fetch(:phone) || ''}</color>", inline_format: true, size: 16
+        move_down 20
+        text "#备注:#{message.blank? ? '无': message}", inline_format: true, size: 12.5, leading: 4
       end
   end
 end
