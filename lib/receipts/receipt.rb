@@ -14,7 +14,8 @@ module Receipts
       @logo           = attributes.fetch(:logo)
       @receiver_info  = attributes.fetch(:receiver_info)
 
-      super(margin: 0)
+      @height = 300 + @line_items.count * 40
+      super(margin: 0, page_size: [280, @height])
 
       setup_fonts if custom_font.any?
       generate
@@ -32,8 +33,8 @@ module Receipts
       end
 
       def generate
-        bounding_box [0, 792], width: 612, height: 792 do
-          bounding_box [85, 792], width: 442, height: 792 do
+        bounding_box [0, @height], width: 280, height: @height do
+          bounding_box [10, @height], width: 260, height: @height do
             header
             charge_details
             footer
